@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML to Web - Sylent</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #161b22;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #30363d;
+    }
+    header h1 { font-size: 1.2rem; color: #00ffcc; }
+    .btn {
+      background: #00ffcc;
+      color: #000;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #00ccaa; }
+    .btn-secondary { background: #30363d; color: #c9d1d9; }
+    .btn-secondary:hover { background: #484f58; }
+    .container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+    textarea {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: none;
+      border-right: 1px solid #30363d;
+      padding: 16px;
+      font-family: 'Consolas', monospace;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      width: 100%;
+      height: 100%;
+    }
+    iframe {
+      border: none;
+      background: #fff;
+      width: 100%;
+      height: 100%;
+    }
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      textarea { border-right: none; border-bottom: 1px solid #30363d; }
+    }
+    #status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #238636;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: 0.3s;
+      pointer-events: none;
+    }
+    #status.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⚡ HTML to Web - Sylent</h1>
+    <div>
+      <button class="btn btn-secondary" onclick="loadDefault()">Reset</button>
+      <button class="btn" onclick="render()">Render</button>
+      <button class="btn" onclick="publish()">Publish</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <textarea id="editor" spellcheck="false"><!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 { font-size: 3rem; }
+  </style>
+</head>
+<body>
+  <h1>Hello Sylent 👽</h1>
+</body>
+</html></textarea>
+
+    <iframe id="preview"></iframe>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+
+    function render() {
+      preview.srcdoc = editor.value;
+      showStatus('✅ Rendered');
+    }
+
+    function publish() {
+      // Simpan ke localStorage
+      localStorage.setItem('sylent_html', editor.value);
+
+      // Generate URL dengan encoded HTML (base64)
+      const encoded = btoa(unescape(encodeURIComponent(editor.value)));
+      const url = location.origin + location.pathname + '#view=' + encoded;
+
+      navigator.clipboard.writeText(url).then(() => {
+        showStatus('🔗 Link dicopy ke clipboard');
+      }).catch(() => {
+        showStatus('🔗 Link: ' + url.substring(0, 50) + '...');
+      });
+    }
+
+    function loadDefault() {
+      editor.value = '<!DOCTYPE html>\n<html>\n<body>\n  <h1>Hello Sylent</h1>\n</body>\n</html>';
+      render();
+    }
+
+    function showStatus(msg) {
+      status.textContent = msg;
+      status.classList.add('show');
+      setTimeout(() => status.classList.remove('show'), 2000);
+    }
